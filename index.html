@@ -1,18 +1,249 @@
-# inspect_cry.py
-import os
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Nifty Matrix Dashboard</title>
+    <!-- Include Firebase Web Core Libraries -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+    <style>
+        :root {
+            --bg-main: #090d16;
+            --card-bg: #131a2b;
+            --text-primary: #f8fafc;
+            --text-secondary: #64748b;
+            --primary-accent: #38bdf8;
+            --success-color: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --danger-color: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --warning-color: #f59e0b;
+        }
 
-file_path = "cry.txt"
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom)) 16px;
+            -webkit-font-smoothing: antialiased;
+        }
 
-if os.path.exists(file_path):
-    print("📋 OPENING 1-MINUTE TICK LOG ENGINE (`cry.txt`):")
-    print("-" * 65)
-    with open(file_path, "r", encoding="utf-8") as f:
-        # Read and display just the first 15 rows of data
-        for i, line in enumerate(f):
-            if i < 15:
-                print(f"Row {i+1}: {line.strip()}")
-            else:
-                break
-    print("-" * 65)
-else:
-    print(f"❌ Cannot locate 'cry.txt' in your current root directory folder.")
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .verdict-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 12px;
+            margin-top: 12px;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background-color: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .metric-box {
+            background-color: rgba(9, 13, 22, 0.6);
+            padding: 14px;
+            border-radius: 12px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .regime-title {
+            font-size: 20px;
+            color: var(--warning-color);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .action-text {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.45;
+            margin-bottom: 16px;
+        }
+
+        .leg-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .leg-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(9, 13, 22, 0.5);
+            padding: 12px 14px;
+            border-radius: 10px;
+        }
+
+        .leg-type {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .leg-value {
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .sell-theme { color: var(--danger-color); }
+        .buy-theme { color: var(--success-color); }
+
+        .delta-pill {
+            display: inline-block;
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--primary-accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>NSE OPTIONS MATRIX</h1>
+        <div id="verdict" class="verdict-badge">SYNCING CLOUD...</div>
+        <div id="timestamp" class="timestamp">Connecting to live node...</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Live Market Snapshot</div>
+        <div class="grid">
+            <div class="metric-box">
+                <div class="metric-label">NIFTY 50 SPOT</div>
+                <div id="nifty-spot" class="metric-value">₹0.00</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">INDIA VIX</div>
+                <div id="india-vix" class="metric-value">0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Active Strategy Target</div>
+        <div id="regime" class="regime-title">Calculating...</div>
+        <div id="action" class="action-text">-</div>
+        
+        <div style="margin-bottom: 16px;">
+            <div class="metric-label">Asymmetric Delta Parameter</div>
+            <div id="delta-val" class="delta-pill">0%</div>
+        </div>
+
+        <div class="leg-container">
+            <div class="leg-row">
+                <div class="leg-type sell-theme">Execution Sell Legs</div>
+                <div id="sell-legs" class="leg-value sell-theme">-</div>
+            </div>
+            <div class="leg-row">
+                <div class="leg-type buy-theme">Protection Buy Legs</div>
+                <div id="buy-legs" class="leg-value buy-theme">-</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.04);">
+            <div class="metric-label">Target Exit Window</div>
+            <div id="exit-window" style="font-size: 13px; font-weight: 600; margin-top: 4px;">-</div>
+        </div>
+    </div>
+
+    <script>
+        // Connect UI directly to your private Firebase data cluster node URL
+        const firebaseConfig = {
+            databaseURL: "https://firebaseio.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Fetch updates whenever the laptop python script writes out matrix variations
+        firebase.database().ref('trading_system/live_matrix').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('verdict').innerText = data.system_gate.verdict;
+                document.getElementById('timestamp').innerText = "UPDATED: " + data.timestamp + " IST";
+                document.getElementById('delta-val').innerText = data.system_gate.calculated_delta_pct;
+                document.getElementById('nifty-spot').innerText = "₹" + data.market_snapshot.nifty_spot.toLocaleString('en-IN');
+                document.getElementById('india-vix').innerText = data.market_snapshot.india_vix.toFixed(2);
+                document.getElementById('regime').innerText = data.active_strategy.regime;
+                document.getElementById('action').innerText = data.active_strategy.target_action;
+                document.getElementById('sell-legs').innerText = data.active_strategy.sell_legs;
+                document.getElementById('buy-legs').innerText = data.active_strategy.buy_legs;
+                document.getElementById('exit-window').innerText = data.active_strategy.exit_window;
+                
+                const verdictElem = document.getElementById('verdict');
+                if(data.system_gate.verdict.includes("NO-GO")) {
+                    verdictElem.style.backgroundColor = "var(--danger-bg)";
+                    verdictElem.style.color = "var(--danger-color)";
+                    verdictElem.style.borderColor = "rgba(239, 68, 68, 0.3)";
+                } else {
+                    verdictElem.style.backgroundColor = "var(--success-bg)";
+                    verdictElem.style.color = "var(--success-color)";
+                    verdictElem.style.borderColor = "rgba(16, 185, 129, 0.3)";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
