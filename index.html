@@ -1,0 +1,18 @@
+# inspect_cry.py
+import os
+
+file_path = "cry.txt"
+
+if os.path.exists(file_path):
+    print("📋 OPENING 1-MINUTE TICK LOG ENGINE (`cry.txt`):")
+    print("-" * 65)
+    with open(file_path, "r", encoding="utf-8") as f:
+        # Read and display just the first 15 rows of data
+        for i, line in enumerate(f):
+            if i < 15:
+                print(f"Row {i+1}: {line.strip()}")
+            else:
+                break
+    print("-" * 65)
+else:
+    print(f"❌ Cannot locate 'cry.txt' in your current root directory folder.")
