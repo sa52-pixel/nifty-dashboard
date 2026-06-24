@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, 
+          maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nifty Matrix Dashboard</title>
-    <!-- Include Firebase Web Core Libraries -->
+
+    <!-- Authoritative Firebase Web Core App and Database Libraries -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
+
     <style>
         :root {
             --bg-main: #090d16;
@@ -22,11 +25,13 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", 
+                         "SF Pro Display", sans-serif;
             background-color: var(--bg-main);
             color: var(--text-primary);
             margin: 0;
-            padding: calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom)) 16px;
+            padding: calc(20px + env(safe-area-inset-top)) 16px 
+                     calc(20px + env(safe-area-inset-bottom)) 16px;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -204,36 +209,51 @@
             </div>
         </div>
 
-        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.04);">
+        <div style="margin-top: 18px; padding-top: 14px; 
+                    border-top: 1px solid rgba(255,255,255,0.04);">
             <div class="metric-label">Target Exit Window</div>
-            <div id="exit-window" style="font-size: 13px; font-weight: 600; margin-top: 4px;">-</div>
+            <div id="exit-window" style="font-size: 13px; font-weight: 600; 
+                 margin-top: 4px;">-</div>
         </div>
     </div>
 
     <script>
-        // Connect UI directly to your private Firebase data cluster node URL
+        // 1. Initialize your precise algorithmic Realtime Database node URL
         const firebaseConfig = {
             databaseURL: "https://firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
 
-        // Fetch updates whenever the laptop python script writes out matrix variations
-        firebase.database().ref('trading_system/live_matrix').on('value', (snapshot) => {
+        // 2. Open active persistent listener to handle cloud stream variations
+        firebase.database().ref('trading_system/live_matrix').on('value', 
+        (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                document.getElementById('verdict').innerText = data.system_gate.verdict;
-                document.getElementById('timestamp').innerText = "UPDATED: " + data.timestamp + " IST";
-                document.getElementById('delta-val').innerText = data.system_gate.calculated_delta_pct;
-                document.getElementById('nifty-spot').innerText = "₹" + data.market_snapshot.nifty_spot.toLocaleString('en-IN');
-                document.getElementById('india-vix').innerText = data.market_snapshot.india_vix.toFixed(2);
-                document.getElementById('regime').innerText = data.active_strategy.regime;
-                document.getElementById('action').innerText = data.active_strategy.target_action;
-                document.getElementById('sell-legs').innerText = data.active_strategy.sell_legs;
-                document.getElementById('buy-legs').innerText = data.active_strategy.buy_legs;
-                document.getElementById('exit-window').innerText = data.active_strategy.exit_window;
+                // UI Mapping bindings
+                document.getElementById('verdict').innerText = 
+                    data.system_gate.verdict;
+                document.getElementById('timestamp').innerText = 
+                    "UPDATED: " + data.timestamp + " IST";
+                document.getElementById('delta-val').innerText = 
+                    data.system_gate.calculated_delta_pct;
+                document.getElementById('nifty-spot').innerText = 
+                    "₹" + data.market_snapshot.nifty_spot.toLocaleString('en-IN');
+                document.getElementById('india-vix').innerText = 
+                    data.market_snapshot.india_vix.toFixed(2);
+                document.getElementById('regime').innerText = 
+                    data.active_strategy.regime;
+                document.getElementById('action').innerText = 
+                    data.active_strategy.target_action;
+                document.getElementById('sell-legs').innerText = 
+                    data.active_strategy.sell_legs;
+                document.getElementById('buy-legs').innerText = 
+                    data.active_strategy.buy_legs;
+                document.getElementById('exit-window').innerText = 
+                    data.active_strategy.exit_window;
                 
+                // Dynamic styling logic for risk management indicators
                 const verdictElem = document.getElementById('verdict');
-                if(data.system_gate.verdict.includes("NO-GO")) {
+                if (data.system_gate.verdict.includes("NO-GO")) {
                     verdictElem.style.backgroundColor = "var(--danger-bg)";
                     verdictElem.style.color = "var(--danger-color)";
                     verdictElem.style.borderColor = "rgba(239, 68, 68, 0.3)";
@@ -243,6 +263,8 @@
                     verdictElem.style.borderColor = "rgba(16, 185, 129, 0.3)";
                 }
             }
+        }, (error) => {
+            console.error("❌ Live Matrix Sync Outage:", error);
         });
     </script>
 </body>
