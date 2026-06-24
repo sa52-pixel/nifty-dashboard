@@ -212,61 +212,92 @@
                  margin-top: 4px;">-</div>
         </div>
     </div>
-
-    <!-- Firebase App and Realtime Database Modules Located Exactly At The Bottom -->
+    <!-- Firebase Script Architecture Integration Core Modules -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { initializeApp } from 
+        "https://gstatic.com";
+        import { getDatabase, ref, onValue } from 
+        "https://gstatic.com";
 
-        // Verified Firebase Project App Configuration Web Instance Objects
+        // Verified Firebase Project Credentials Map configuration Block
         const firebaseConfig = {
             apiKey: "AIzaSyDbepmf_vRbQQjSu8f_7YleDIC8wXT3KmQ",
-            authDomain: "niftyalgoapp.firebaseapp.com",
-            databaseURL: "https://niftyalgoapp-default-rtdb.firebaseio.com",
+            authDomain: "://firebaseapp.com",
+            databaseURL: "https://firebaseio.com",
             projectId: "niftyalgoapp",
             storageBucket: "niftyalgoapp.firebasestorage.app",
             messagingSenderId: "894603819948",
             appId: "1:894603819948:web:0775c98c5905902cc91809"
         };
 
-        // Initialize connection layers
+        // Initialize Cloud Core Connection Infrastructure Interfaces
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const rootRef = ref(db, '/');
         
-        // Target your nested data directory path location
-        const matrixRef = ref(db, 'trading_system/live_matrix');
-        
-        onValue(matrixRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // 1. Dynamic Status Parameters Elements
+        // Execute active continuous asynchronous WebSocket database stream
+        onValue(rootRef, (snapshot) => {
+            const rawData = snapshot.val();
+            if (rawData) {
+                // Auto-resolve nested folder or flat data trees dynamically
+                let data = rawData;
+                if (rawData.trading_system && 
+                    rawData.trading_system.live_matrix) {
+                    data = rawData.trading_system.live_matrix;
+                }
+
+                // 1. Map System Gate Validation Metrics Node
                 if (data.system_gate) {
-                    document.getElementById('verdict').innerText = data.system_gate.verdict || "N/A";
-                    document.getElementById('delta-val').innerText = data.system_gate.calculated_delta_pct || "0%";
-                    document.getElementById('timestamp').innerText = "UPDATED: " + (data.system_gate.timestamp || "") + " IST";
+                    const gate = data.system_gate;
+                    document.getElementById('verdict').innerText = 
+                        gate.verdict || "N/A";
+                    document.getElementById('delta-val').innerText = 
+                        gate.calculated_delta_pct || "0%";
+                    
+                    const logTime = gate.timestamp || data.timestamp || "";
+                    document.getElementById('timestamp').innerText = 
+                        "UPDATED: " + logTime + " IST";
+                } else if (data.timestamp) {
+                    document.getElementById('timestamp').innerText = 
+                        "UPDATED: " + data.timestamp + " IST";
                 }
                 
-                // 2. Realtime Spot Price Data Allocations
+                // 2. Map Dynamic Marketplace Snapshot Analytics Properties
                 if (data.market_snapshot) {
-                    const spotPrice = data.market_snapshot.nifty_spot;
-                    document.getElementById('nifty-spot').innerText = spotPrice ? "₹" + spotPrice.toLocaleString('en-IN') : "₹0.00";
-                    document.getElementById('india-vix').innerText = data.market_snapshot.india_vix ? data.market_snapshot.india_vix.toFixed(2) : "0.00";
+                    const snap = data.market_snapshot;
+                    const spotVal = snap.nifty_spot;
+                    
+                    document.getElementById('nifty-spot').innerText = 
+                        spotVal ? "₹" + spotVal.toLocaleString('en-IN') : 
+                        "₹0.00";
+                    
+                    document.getElementById('india-vix').innerText = 
+                        snap.india_vix ? Number(snap.india_vix).toFixed(2) : 
+                        "0.00";
                 }
                 
-                // 3. Strategy Structural Nodes Map Target Execution Parameters
+                // 3. Map Active System Target Allocations Execution Leg Structures
                 if (data.active_strategy) {
-                    document.getElementById('regime').innerText = data.active_strategy.regime || "-";
-                    document.getElementById('action').innerText = data.active_strategy.target_action || "-";
-                    document.getElementById('sell-legs').innerText = data.active_strategy.sell_legs || "-";
-                    document.getElementById('buy-legs').innerText = data.active_strategy.buy_legs || "-";
-                    document.getElementById('exit-window').innerText = data.active_strategy.exit_window || "-";
+                    const strat = data.active_strategy;
+                    document.getElementById('regime').innerText = 
+                        strat.regime || "-";
+                    document.getElementById('action').innerText = 
+                        strat.target_action || "-";
+                    document.getElementById('sell-legs').innerText = 
+                        strat.sell_legs || "-";
+                    document.getElementById('buy-legs').innerText = 
+                        strat.buy_legs || "-";
+                    document.getElementById('exit-window').innerText = 
+                        strat.exit_window || "-";
                 }
             } else {
-                document.getElementById('verdict').innerText = "NODE EMPTY ⚠️";
+                document.getElementById('verdict').innerText = 
+                    "NODE EMPTY ⚠️";
             }
         }, (error) => {
-            console.error("Firebase Database Pipeline Failure: ", error);
-            document.getElementById('verdict').innerText = "AUTH ERROR ❌";
+            console.error("Firebase connection error: ", error);
+            document.getElementById('verdict').innerText = 
+                "RULE BLOCKED ❌";
         });
     </script>
 </body>
