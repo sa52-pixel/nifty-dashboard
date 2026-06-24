@@ -218,18 +218,18 @@
     </div>
 
     <script>
-        // 1. Initialize your precise algorithmic Realtime Database node URL
+        // 1. Initialize your precise database cluster URL node location
         const firebaseConfig = {
-            databaseURL: "https://firebaseio.com"
+            databaseURL: "https://niftyalgoapp-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
 
-        // 2. Open active persistent listener to handle cloud stream variations
+        // 2. Open active websocket listener stream pipeline channels
         firebase.database().ref('trading_system/live_matrix').on('value', 
         (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // UI Mapping bindings
+                // UI Mapping parameter elements bindings
                 document.getElementById('verdict').innerText = 
                     data.system_gate.verdict;
                 document.getElementById('timestamp').innerText = 
@@ -251,7 +251,7 @@
                 document.getElementById('exit-window').innerText = 
                     data.active_strategy.exit_window;
                 
-                // Dynamic styling logic for risk management indicators
+                // Dynamic execution color status adjustments
                 const verdictElem = document.getElementById('verdict');
                 if (data.system_gate.verdict.includes("NO-GO")) {
                     verdictElem.style.backgroundColor = "var(--danger-bg)";
